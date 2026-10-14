@@ -4,7 +4,7 @@
 abstract final class StorageKeys {
   // Secure storage
   static const String apiKey = 'auth.api_key';
-  static const String apiKeyEnv = 'auth.api_key_env';
+  static const String tenant = 'auth.tenant';
 
   // Preferences
   static const String themeMode = 'prefs.theme_mode';
