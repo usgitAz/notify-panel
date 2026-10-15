@@ -20,7 +20,8 @@ abstract final class Validators {
     if (value == null || value.trim().isEmpty) {
       return 'API key is required.';
     }
-    final regex = RegExp(r'^sk_[a-z]{2,8}_[A-Za-z0-9]{16,}$');
+    // Format: sk_<env>_<opaque> where opaque may contain [A-Za-z0-9_-].
+    final regex = RegExp(r'^sk_[a-z]{2,8}_[A-Za-z0-9_\-]{16,}$');
     if (!regex.hasMatch(value.trim())) {
       return 'API key format looks invalid.';
     }

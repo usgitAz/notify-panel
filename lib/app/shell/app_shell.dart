@@ -1,23 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/providers/auth_providers.dart';
+import '../../features/auth/presentation/providers/auth_state.dart';
+import '../../shared/widgets/confirm_dialog.dart';
 import '../router/app_routes.dart';
 
-/// Layout wrapper for all authenticated routes.
-///
-/// Renders a [NavigationRail] on the left and the active route in the
-/// content area via [GoRouterState]'s matched location.
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({required this.child, super.key});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).uri.path;
     final index = _indexFor(location);
+    final auth = ref.watch(authNotifierProvider);
+    final tenantName = switch (auth) {
+      AuthAuthenticated(:final session) => session.tenant.name,
+      _ => '',
+    };
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(tenantName.isEmpty ? 'Notify Panel' : tenantName),
+        actions: [
+          IconButton(
+            tooltip: 'Sign out',
+            icon: const Icon(Icons.logout),
+            onPressed: () => _confirmLogout(context, ref),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Row(
         children: [
           NavigationRail(
@@ -47,6 +63,19 @@ class AppShell extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await ConfirmDialog.show(
+      context: context,
+      title: 'Sign out',
+      message: 'You will need to sign in again with your API key.',
+      confirmLabel: 'Sign out',
+      destructive: true,
+    );
+    if (confirmed) {
+      await ref.read(authNotifierProvider.notifier).logout();
+    }
   }
 
   static const _destinations = [

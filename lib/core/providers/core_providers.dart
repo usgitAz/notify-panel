@@ -38,16 +38,10 @@ final preferencesStorageProvider = Provider<PreferencesStorage>(
 final apiKeyHolderProvider = Provider<ApiKeyHolder>((ref) => ApiKeyHolder());
 
 // ─── Dio ───
-
 final dioProvider = Provider<Dio>((ref) {
   final holder = ref.watch(apiKeyHolderProvider);
-
   return DioClient.create(
     getApiKey: () => holder.value,
-    onUnauthorized: () {
-      // The holder is cleared here; the auth layer watches for the
-      // session to become null via its own state.
-      holder.clear();
-    },
+    onUnauthorized: holder.notifyUnauthorized,
   );
 });

@@ -5,19 +5,13 @@ import '../core/providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
-class NotifyPanelApp extends ConsumerStatefulWidget {
+class NotifyPanelApp extends ConsumerWidget {
   const NotifyPanelApp({super.key});
 
   @override
-  ConsumerState<NotifyPanelApp> createState() => _NotifyPanelAppState();
-}
-
-class _NotifyPanelAppState extends ConsumerState<NotifyPanelApp> {
-  late final _router = AppRouter.create();
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'Notify Panel',
@@ -25,7 +19,7 @@ class _NotifyPanelAppState extends ConsumerState<NotifyPanelApp> {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      routerConfig: _router,
+      routerConfig: router,
     );
   }
 }
