@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_underscores
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,7 +16,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   // Bridges Riverpod's auth state changes to a Listenable that
   // GoRouter can observe to re-evaluate `redirect`.
   final refresh = ValueNotifier<int>(0);
-  ref.listen(authNotifierProvider, (_, __) => refresh.value++);
+  ref.listen(authNotifierProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
@@ -35,21 +33,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       };
     },
     routes: [
-      GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginPage()),
+      GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginPage()),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
           GoRoute(
             path: AppRoutes.dashboard,
-            builder: (_, __) => const DashboardPage(),
+            builder: (_, _) => const DashboardPage(),
           ),
           GoRoute(
             path: AppRoutes.users,
-            builder: (_, __) => const UserLookupPage(),
+            builder: (_, _) => const UserLookupPage(),
           ),
           GoRoute(
             path: AppRoutes.notifications,
-            builder: (_, __) => const NotificationListPage(),
+            builder: (_, _) => const NotificationListPage(),
           ),
         ],
       ),
