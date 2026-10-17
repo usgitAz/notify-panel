@@ -9,7 +9,7 @@ import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/notifications/presentation/pages/notification_list_page.dart';
 import '../../features/users/presentation/pages/create_user_page.dart';
 import '../../features/users/presentation/pages/user_detail_page.dart';
-import '../../features/users/presentation/pages/user_lookup_page.dart';
+import '../../features/users/presentation/pages/users_list_page.dart';
 import '../shell/app_shell.dart';
 import 'app_routes.dart';
 
@@ -45,7 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.users,
-            builder: (_, _) => const UserLookupPage(),
+            builder: (_, _) => const UsersListPage(),
             routes: [
               GoRoute(
                 path: AppRoutes.userCreate,
