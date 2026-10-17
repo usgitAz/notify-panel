@@ -1,4 +1,3 @@
-/// Route names and paths used across the app.
 abstract final class AppRoutes {
   const AppRoutes._();
 
@@ -10,10 +9,9 @@ abstract final class AppRoutes {
   static const String users = '/users';
   static const String notifications = '/notifications';
 
-  // ─── Users sub-routes ───
+  // ─── Users sub-routes (relative for nested routing) ───
   static const String userCreate = 'create';
   static const String userDetail = ':externalId';
-  static const String userEdit = 'edit';
   static const String deviceRegister = 'devices/register';
 
   // ─── Notifications sub-routes ───
@@ -21,8 +19,19 @@ abstract final class AppRoutes {
   static const String notificationDetail = ':id';
 
   // ─── Full paths (for go/push by path) ───
-  static String userDetailPath(String externalId) => '$users/$externalId';
+  static String userCreatePath({String? externalId}) {
+    final base = '$users/$userCreate';
+    return externalId == null
+        ? base
+        : '$base?externalId=${Uri.encodeComponent(externalId)}';
+  }
+
+  static String userDetailPath(String externalId) =>
+      '$users/${Uri.encodeComponent(externalId)}';
+
   static String deviceRegisterPath(String externalId) =>
-      '$users/$externalId/$deviceRegister';
-  static String notificationDetailPath(String id) => '$notifications/$id';
+      '$users/${Uri.encodeComponent(externalId)}/$deviceRegister';
+
+  static String notificationDetailPath(String id) =>
+      '$notifications/${Uri.encodeComponent(id)}';
 }

@@ -3,16 +3,8 @@ import 'package:fpdart/fpdart.dart';
 
 import '../error/failure.dart';
 import '../error/failure_mapper.dart';
+import 'page.dart';
 
-/// Parses the backend's standard response envelope into domain values.
-///
-/// Success envelope: `{ success: true, data: <T>, meta: {...} }`
-/// Error envelope:   `{ success: false, error: {code, message, details?},
-///                     meta: {...} }`
-///
-/// This class is intentionally thin: it only unwraps the envelope and
-/// delegates error mapping to [FailureMapper]. JSON-to-model conversion
-/// is the responsibility of DTOs in each feature's data layer.
 abstract final class EnvelopeParser {
   /// Parses a success response whose `data` is a single JSON object.
   static Either<Failure, T> parseObject<T>({
@@ -43,6 +35,39 @@ abstract final class EnvelopeParser {
       return data
           .map((item) => fromJson(item as Map<String, dynamic>))
           .toList(growable: false);
+    });
+  }
+
+  /// Parses a success response whose `data` is a [Page] envelope:
+  /// `{ items: [...], total, limit, offset, has_next, has_prev }`.
+  static Either<Failure, Page<T>> parsePage<T>({
+    required Response<dynamic> response,
+    required T Function(Map<String, dynamic> json) itemFromJson,
+  }) {
+    return _parse(response, (data) {
+      if (data is! Map<String, dynamic>) {
+        throw FormatException(
+          'Expected a Page object at "data" but got ${data.runtimeType}.',
+        );
+      }
+
+      final rawItems = data['items'];
+      if (rawItems is! List) {
+        throw const FormatException('Expected "items" to be a JSON array.');
+      }
+
+      final items = rawItems
+          .map((item) => itemFromJson(item as Map<String, dynamic>))
+          .toList(growable: false);
+
+      return Page<T>(
+        items: items,
+        total: data['total'] as int,
+        limit: data['limit'] as int,
+        offset: data['offset'] as int,
+        hasNext: data['has_next'] as bool,
+        hasPrev: data['has_prev'] as bool,
+      );
     });
   }
 

@@ -127,10 +127,11 @@ class AppTheme {
       ),
 
       // ─── Snackbar ───
-      snackBarTheme: const SnackBarThemeData(
+      snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-        contentTextStyle: TextStyle(fontSize: 14),
+        backgroundColor: scheme.surfaceContainerHigh,
+        contentTextStyle: TextStyle(fontSize: 14, color: scheme.onSurface),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
       ),
 
       // ─── Navigation Rail ───

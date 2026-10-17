@@ -12,6 +12,9 @@ UserDto _$UserDtoFromJson(Map<String, dynamic> json) => UserDto(
   externalId: json['external_id'] as String,
   email: json['email'] as String?,
   isActive: json['is_active'] as bool,
+  deactivatedAt: json['deactivated_at'] == null
+      ? null
+      : DateTime.parse(json['deactivated_at'] as String),
   createdAt: DateTime.parse(json['created_at'] as String),
   updatedAt: DateTime.parse(json['updated_at'] as String),
 );

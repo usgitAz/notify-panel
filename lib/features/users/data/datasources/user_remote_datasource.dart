@@ -5,6 +5,7 @@ import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_mapper.dart';
 import '../../../../core/network/envelope_parser.dart';
+import '../../../../core/network/page.dart';
 import '../../domain/entities/user.dart';
 import '../models/user_dto.dart';
 
@@ -12,6 +13,29 @@ class UserRemoteDataSource {
   UserRemoteDataSource(this._dio);
 
   final Dio _dio;
+
+  Future<Either<Failure, Page<User>>> list({
+    bool? isActive,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get<dynamic>(
+        ApiEndpoints.users,
+        queryParameters: {
+          'is_active': ?isActive,
+          'limit': limit,
+          'offset': offset,
+        },
+      );
+      return EnvelopeParser.parsePage(
+        response: response,
+        itemFromJson: UserDto.fromJson,
+      ).map((page) => page.map((dto) => dto.toEntity()));
+    } on DioException catch (e) {
+      return Left(FailureMapper.fromDio(e));
+    }
+  }
 
   Future<Either<Failure, User>> getByExternalId(String externalId) async {
     try {

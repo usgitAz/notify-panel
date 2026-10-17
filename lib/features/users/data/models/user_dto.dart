@@ -12,6 +12,7 @@ class UserDto {
     required this.externalId,
     required this.email,
     required this.isActive,
+    required this.deactivatedAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -32,6 +33,9 @@ class UserDto {
   @JsonKey(name: 'is_active')
   final bool isActive;
 
+  @JsonKey(name: 'deactivated_at')
+  final DateTime? deactivatedAt;
+
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
@@ -44,6 +48,7 @@ class UserDto {
     externalId: externalId,
     email: email,
     isActive: isActive,
+    deactivatedAt: deactivatedAt,
     createdAt: createdAt,
     updatedAt: updatedAt,
   );

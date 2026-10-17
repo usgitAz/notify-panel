@@ -7,6 +7,8 @@ import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/providers/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/notifications/presentation/pages/notification_list_page.dart';
+import '../../features/users/presentation/pages/create_user_page.dart';
+import '../../features/users/presentation/pages/user_detail_page.dart';
 import '../../features/users/presentation/pages/user_lookup_page.dart';
 import '../shell/app_shell.dart';
 import 'app_routes.dart';
@@ -44,6 +46,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.users,
             builder: (_, _) => const UserLookupPage(),
+            routes: [
+              GoRoute(
+                path: AppRoutes.userCreate,
+                builder: (context, state) {
+                  final externalId = state.uri.queryParameters['externalId'];
+                  return CreateUserPage(prefillExternalId: externalId);
+                },
+              ),
+              GoRoute(
+                path: AppRoutes.userDetail,
+                builder: (context, state) => UserDetailPage(
+                  externalId: state.pathParameters['externalId']!,
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.notifications,

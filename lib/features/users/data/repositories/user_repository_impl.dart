@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/network/page.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../datasources/user_remote_datasource.dart';
@@ -9,6 +10,13 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl({required this._remote});
 
   final UserRemoteDataSource _remote;
+
+  @override
+  Future<Either<Failure, Page<User>>> list({
+    bool? isActive,
+    int limit = 20,
+    int offset = 0,
+  }) => _remote.list(isActive: isActive, limit: limit, offset: offset);
 
   @override
   Future<Either<Failure, User>> getByExternalId(String externalId) =>
