@@ -6,6 +6,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/providers/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/devices/presentation/pages/register_device_page.dart';
 import '../../features/notifications/presentation/pages/notification_list_page.dart';
 import '../../features/users/presentation/pages/create_user_page.dart';
 import '../../features/users/presentation/pages/user_detail_page.dart';
@@ -59,6 +60,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => UserDetailPage(
                   externalId: state.pathParameters['externalId']!,
                 ),
+                routes: [
+                  GoRoute(
+                    path: AppRoutes.deviceRegister,
+                    builder: (context, state) => RegisterDevicePage(
+                      externalId: state.pathParameters['externalId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

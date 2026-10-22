@@ -15,16 +15,12 @@ enum DevicePlatform {
   String get wire => name;
 }
 
-/// Delivery channel for a registered device.
+/// Push provider for device delivery.
 enum PushProvider {
-  fcm,
-  email,
-  sms;
+  fcm;
 
   static PushProvider fromJson(String value) => switch (value) {
     'fcm' => PushProvider.fcm,
-    'email' => PushProvider.email,
-    'sms' => PushProvider.sms,
     _ => throw FormatException('Unknown provider: $value'),
   };
 

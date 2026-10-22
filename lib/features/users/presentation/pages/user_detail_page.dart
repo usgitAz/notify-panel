@@ -9,14 +9,15 @@ import '../../../../shared/widgets/app_snackbar.dart';
 import '../../../../shared/widgets/async_value_widget.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
 import '../../../../shared/widgets/status_badge.dart';
+import '../../../devices/presentation/widgets/device_section.dart';
 import '../../domain/entities/user.dart';
 import '../providers/user_providers.dart';
 import '../widgets/edit_user_email_dialog.dart';
 
 class UserDetailPage extends ConsumerWidget {
-  const UserDetailPage({required this.externalId, super.key});
-
   final String externalId;
+
+  const UserDetailPage({required this.externalId, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,11 +31,55 @@ class UserDetailPage extends ConsumerWidget {
   }
 }
 
-class _UserDetailBody extends ConsumerStatefulWidget {
-  const _UserDetailBody({required this.externalId, required this.user});
+class _InfoRow extends StatelessWidget {
+  final String label;
 
+  final String value;
+  final Widget? trailing;
+  final bool isLast;
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.trailing,
+    this.isLast = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 120,
+                child: Text(
+                  label,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
+              ?trailing,
+            ],
+          ),
+        ),
+        if (!isLast)
+          Divider(height: 1, color: theme.colorScheme.outlineVariant),
+      ],
+    );
+  }
+}
+
+class _UserDetailBody extends ConsumerStatefulWidget {
   final String externalId;
+
   final User user;
+  const _UserDetailBody({required this.externalId, required this.user});
 
   @override
   ConsumerState<_UserDetailBody> createState() => _UserDetailBodyState();
@@ -42,58 +87,6 @@ class _UserDetailBody extends ConsumerStatefulWidget {
 
 class _UserDetailBodyState extends ConsumerState<_UserDetailBody> {
   bool _toggling = false;
-
-  Future<void> _toggleActive() async {
-    final user = widget.user;
-    final activating = !user.isActive;
-
-    final confirmed = await ConfirmDialog.show(
-      context: context,
-      title: activating ? 'Activate user' : 'Deactivate user',
-      message: activating
-          ? 'The user will be able to receive notifications again.'
-          : 'The user will no longer receive notifications. '
-                'You can reactivate them later.',
-      confirmLabel: activating ? 'Activate' : 'Deactivate',
-      destructive: !activating,
-    );
-    if (!confirmed) return;
-
-    setState(() => _toggling = true);
-
-    final result = await ref
-        .read(userDetailProvider(widget.externalId).notifier)
-        .toggleActive();
-
-    if (!mounted) return;
-    setState(() => _toggling = false);
-
-    result.match(
-      (failure) => AppSnackbar.error(context, FailureMessages.of(failure)),
-      (_) => AppSnackbar.success(
-        context,
-        activating ? 'User activated.' : 'User deactivated.',
-      ),
-    );
-  }
-
-  Future<void> _editEmail() async {
-    final updated = await EditUserEmailDialog.show(
-      context: context,
-      initialEmail: widget.user.email,
-    );
-    if (updated == null) return;
-
-    final result = await ref
-        .read(userDetailProvider(widget.externalId).notifier)
-        .updateEmail(updated);
-
-    if (!mounted) return;
-    result.match(
-      (failure) => AppSnackbar.error(context, FailureMessages.of(failure)),
-      (_) => AppSnackbar.success(context, 'Email updated.'),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,10 +180,30 @@ class _UserDetailBodyState extends ConsumerState<_UserDetailBody> {
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+              DeviceSection(userExternalId: widget.externalId),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _editEmail() async {
+    final updated = await EditUserEmailDialog.show(
+      context: context,
+      initialEmail: widget.user.email,
+    );
+    if (updated == null) return;
+
+    final result = await ref
+        .read(userDetailProvider(widget.externalId).notifier)
+        .updateEmail(updated);
+
+    if (!mounted) return;
+    result.match(
+      (failure) => AppSnackbar.error(context, FailureMessages.of(failure)),
+      (_) => AppSnackbar.success(context, 'Email updated.'),
     );
   }
 
@@ -201,48 +214,38 @@ class _UserDetailBodyState extends ConsumerState<_UserDetailBody> {
   }
 
   String _pad(int n) => n.toString().padLeft(2, '0');
-}
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.trailing,
-    this.isLast = false,
-  });
+  Future<void> _toggleActive() async {
+    final user = widget.user;
+    final activating = !user.isActive;
 
-  final String label;
-  final String value;
-  final Widget? trailing;
-  final bool isLast;
+    final confirmed = await ConfirmDialog.show(
+      context: context,
+      title: activating ? 'Activate user' : 'Deactivate user',
+      message: activating
+          ? 'The user will be able to receive notifications again.'
+          : 'The user will no longer receive notifications. '
+                'You can reactivate them later.',
+      confirmLabel: activating ? 'Activate' : 'Deactivate',
+      destructive: !activating,
+    );
+    if (!confirmed) return;
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 120,
-                child: Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
-              ?trailing,
-            ],
-          ),
-        ),
-        if (!isLast)
-          Divider(height: 1, color: theme.colorScheme.outlineVariant),
-      ],
+    setState(() => _toggling = true);
+
+    final result = await ref
+        .read(userDetailProvider(widget.externalId).notifier)
+        .toggleActive();
+
+    if (!mounted) return;
+    setState(() => _toggling = false);
+
+    result.match(
+      (failure) => AppSnackbar.error(context, FailureMessages.of(failure)),
+      (_) => AppSnackbar.success(
+        context,
+        activating ? 'User activated.' : 'User deactivated.',
+      ),
     );
   }
 }
