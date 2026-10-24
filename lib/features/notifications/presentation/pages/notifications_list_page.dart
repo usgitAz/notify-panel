@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../shared/widgets/app_snackbar.dart';
+import '../../../../app/router/app_routes.dart';
 import '../../../../shared/widgets/async_value_widget.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -49,13 +50,8 @@ class NotificationsListPage extends ConsumerWidget {
 
                 return _NotificationsTable(
                   notifications: state.notifications,
-                  onRowTap: (n) {
-                    AppSnackbar.info(
-                      context,
-                      'Detail view coming next — '
-                      'notification ${n.id.substring(0, 8)}…',
-                    );
-                  },
+                  onRowTap: (n) =>
+                      context.go(AppRoutes.notificationDetailPath(n.id)),
                 );
               },
             ),
@@ -77,57 +73,20 @@ class NotificationsListPage extends ConsumerWidget {
   }
 }
 
-// ─── Header ───
-
-class _Header extends StatelessWidget {
-  const _Header({required this.onRefresh});
-
-  final VoidCallback onRefresh;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Notifications', style: theme.textTheme.headlineSmall),
-              const SizedBox(height: 4),
-              Text(
-                'History of every notification sent by this tenant.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          tooltip: 'Refresh',
-          icon: const Icon(Icons.refresh),
-          onPressed: onRefresh,
-        ),
-      ],
-    );
-  }
-}
-
 // ─── Filters ───
 
 class _Filters extends StatelessWidget {
+  final NotificationStatus? status;
+
+  final NotificationChannel? channel;
+  final ValueChanged<NotificationStatus?> onStatusChanged;
+  final ValueChanged<NotificationChannel?> onChannelChanged;
   const _Filters({
     required this.status,
     required this.channel,
     required this.onStatusChanged,
     required this.onChannelChanged,
   });
-
-  final NotificationStatus? status;
-  final NotificationChannel? channel;
-  final ValueChanged<NotificationStatus?> onStatusChanged;
-  final ValueChanged<NotificationChannel?> onChannelChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -181,21 +140,6 @@ class _Filters extends StatelessWidget {
     );
   }
 
-  static int _statusToIndex(NotificationStatus? s) => switch (s) {
-    null => 0,
-    NotificationStatus.pending => 1,
-    NotificationStatus.delivered => 2,
-    NotificationStatus.failed => 3,
-  };
-
-  static NotificationStatus? _indexToStatus(int i) => switch (i) {
-    0 => null,
-    1 => NotificationStatus.pending,
-    2 => NotificationStatus.delivered,
-    3 => NotificationStatus.failed,
-    _ => null,
-  };
-
   static int _channelToIndex(NotificationChannel? c) => switch (c) {
     null => 0,
     NotificationChannel.email => 1,
@@ -208,75 +152,70 @@ class _Filters extends StatelessWidget {
     2 => NotificationChannel.push,
     _ => null,
   };
+
+  static NotificationStatus? _indexToStatus(int i) => switch (i) {
+    0 => null,
+    1 => NotificationStatus.pending,
+    2 => NotificationStatus.delivered,
+    3 => NotificationStatus.failed,
+    _ => null,
+  };
+
+  static int _statusToIndex(NotificationStatus? s) => switch (s) {
+    null => 0,
+    NotificationStatus.pending => 1,
+    NotificationStatus.delivered => 2,
+    NotificationStatus.failed => 3,
+  };
 }
 
-// ─── Table ───
+// ─── Header ───
 
-class _NotificationsTable extends StatelessWidget {
-  const _NotificationsTable({
-    required this.notifications,
-    required this.onRowTap,
-  });
+class _Header extends StatelessWidget {
+  final VoidCallback onRefresh;
 
-  final List<Notification> notifications;
-  final ValueChanged<Notification> onRowTap;
+  const _Header({required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              border: Border(
-                bottom: BorderSide(color: theme.colorScheme.outlineVariant),
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Notifications', style: theme.textTheme.headlineSmall),
+              const SizedBox(height: 4),
+              Text(
+                'History of every notification sent by this tenant.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            child: Row(
-              children: const [
-                _HeaderCell('ID', flex: 2),
-                _HeaderCell('User', flex: 3),
-                _HeaderCell('Channel', flex: 2),
-                _HeaderCell('Subject', flex: 4),
-                _HeaderCell('Status', flex: 2),
-                _HeaderCell('Attempts', flex: 1, align: TextAlign.center),
-                _HeaderCell('Created', flex: 3),
-                SizedBox(width: 24),
-              ],
-            ),
+            ],
           ),
-          Expanded(
-            child: ListView.separated(
-              itemCount: notifications.length,
-              separatorBuilder: (_, _) =>
-                  Divider(height: 1, color: theme.colorScheme.outlineVariant),
-              itemBuilder: (_, i) => _NotificationRow(
-                notification: notifications[i],
-                onTap: () => onRowTap(notifications[i]),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+        IconButton(
+          tooltip: 'Refresh',
+          icon: const Icon(Icons.refresh),
+          onPressed: onRefresh,
+        ),
+      ],
     );
   }
 }
 
 class _HeaderCell extends StatelessWidget {
+  final String label;
+
+  final int flex;
+  final TextAlign align;
   const _HeaderCell(
     this.label, {
     required this.flex,
     this.align = TextAlign.left,
   });
-
-  final String label;
-  final int flex;
-  final TextAlign align;
 
   @override
   Widget build(BuildContext context) {
@@ -296,10 +235,10 @@ class _HeaderCell extends StatelessWidget {
 }
 
 class _NotificationRow extends StatelessWidget {
-  const _NotificationRow({required this.notification, required this.onTap});
-
   final Notification notification;
+
   final VoidCallback onTap;
+  const _NotificationRow({required this.notification, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -413,6 +352,14 @@ class _NotificationRow extends StatelessWidget {
     NotificationChannel.push => 'Push',
   };
 
+  static String _formatDate(DateTime dt) {
+    final local = dt.toLocal();
+    return '${local.year}-${_pad(local.month)}-${_pad(local.day)} '
+        '${_pad(local.hour)}:${_pad(local.minute)}';
+  }
+
+  static String _pad(int n) => n.toString().padLeft(2, '0');
+
   static String _statusLabel(NotificationStatus s) => switch (s) {
     NotificationStatus.pending => 'Pending',
     NotificationStatus.delivered => 'Delivered',
@@ -424,19 +371,77 @@ class _NotificationRow extends StatelessWidget {
     NotificationStatus.delivered => StatusTone.delivered,
     NotificationStatus.failed => StatusTone.failed,
   };
+}
 
-  static String _formatDate(DateTime dt) {
-    final local = dt.toLocal();
-    return '${local.year}-${_pad(local.month)}-${_pad(local.day)} '
-        '${_pad(local.hour)}:${_pad(local.minute)}';
+// ─── Table ───
+
+class _NotificationsTable extends StatelessWidget {
+  final List<Notification> notifications;
+
+  final ValueChanged<Notification> onRowTap;
+  const _NotificationsTable({
+    required this.notifications,
+    required this.onRowTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              border: Border(
+                bottom: BorderSide(color: theme.colorScheme.outlineVariant),
+              ),
+            ),
+            child: Row(
+              children: const [
+                _HeaderCell('ID', flex: 2),
+                _HeaderCell('User', flex: 3),
+                _HeaderCell('Channel', flex: 2),
+                _HeaderCell('Subject', flex: 4),
+                _HeaderCell('Status', flex: 2),
+                _HeaderCell('Attempts', flex: 1, align: TextAlign.center),
+                _HeaderCell('Created', flex: 3),
+                SizedBox(width: 24),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              itemCount: notifications.length,
+              separatorBuilder: (_, _) =>
+                  Divider(height: 1, color: theme.colorScheme.outlineVariant),
+              itemBuilder: (_, i) => _NotificationRow(
+                notification: notifications[i],
+                onTap: () => onRowTap(notifications[i]),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  static String _pad(int n) => n.toString().padLeft(2, '0');
 }
 
 // ─── Pagination ───
 
 class _Pagination extends StatelessWidget {
+  final bool hasNext;
+
+  final bool hasPrev;
+  final int total;
+  final int firstIndex;
+  final int lastIndex;
+  final VoidCallback onNext;
+  final VoidCallback onPrev;
+  final bool loading;
   const _Pagination({
     required this.hasNext,
     required this.hasPrev,
@@ -447,15 +452,6 @@ class _Pagination extends StatelessWidget {
     required this.onPrev,
     required this.loading,
   });
-
-  final bool hasNext;
-  final bool hasPrev;
-  final int total;
-  final int firstIndex;
-  final int lastIndex;
-  final VoidCallback onNext;
-  final VoidCallback onPrev;
-  final bool loading;
 
   @override
   Widget build(BuildContext context) {
