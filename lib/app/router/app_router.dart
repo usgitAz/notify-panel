@@ -7,7 +7,7 @@ import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/providers/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/devices/presentation/pages/register_device_page.dart';
-import '../../features/notifications/presentation/pages/notification_list_page.dart';
+import '../../features/notifications/presentation/pages/notifications_list_page.dart';
 import '../../features/users/presentation/pages/create_user_page.dart';
 import '../../features/users/presentation/pages/user_detail_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
@@ -73,7 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.notifications,
-            builder: (_, _) => const NotificationListPage(),
+            builder: (_, _) => const NotificationsListPage(),
           ),
         ],
       ),

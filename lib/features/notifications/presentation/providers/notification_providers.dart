@@ -5,6 +5,7 @@ import '../../data/datasources/notification_remote_datasource.dart';
 import '../../data/repositories/notification_repository_impl.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/usecases/get_notification_usecase.dart';
+import '../../domain/usecases/list_notifications_usecase.dart';
 
 // ─── Data sources ───
 
@@ -22,6 +23,10 @@ final notificationRepositoryProvider = Provider<NotificationRepository>(
 );
 
 // ─── Use cases ───
+
+final listNotificationsUseCaseProvider = Provider<ListNotificationsUseCase>(
+  (ref) => ListNotificationsUseCase(ref.watch(notificationRepositoryProvider)),
+);
 
 final getNotificationUseCaseProvider = Provider<GetNotificationUseCase>(
   (ref) => GetNotificationUseCase(ref.watch(notificationRepositoryProvider)),
