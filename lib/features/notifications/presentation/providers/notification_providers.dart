@@ -6,6 +6,7 @@ import '../../data/repositories/notification_repository_impl.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/usecases/get_notification_usecase.dart';
 import '../../domain/usecases/list_notifications_usecase.dart';
+import '../../domain/usecases/send_email_usecase.dart';
 
 // ─── Data sources ───
 
@@ -30,4 +31,8 @@ final listNotificationsUseCaseProvider = Provider<ListNotificationsUseCase>(
 
 final getNotificationUseCaseProvider = Provider<GetNotificationUseCase>(
   (ref) => GetNotificationUseCase(ref.watch(notificationRepositoryProvider)),
+);
+
+final sendEmailUseCaseProvider = Provider<SendEmailUseCase>(
+  (ref) => SendEmailUseCase(ref.watch(notificationRepositoryProvider)),
 );

@@ -50,4 +50,38 @@ class NotificationRemoteDataSource {
       return Left(FailureMapper.fromDio(e));
     }
   }
+
+  Future<Either<Failure, Notification>> sendEmail({
+    required String externalId,
+    required String subject,
+    required String body,
+    String? fromEmail,
+    String? replyTo,
+    List<String> cc = const [],
+    List<String> bcc = const [],
+    List<String> attachments = const [],
+  }) async {
+    try {
+      final response = await _dio.post<dynamic>(
+        ApiEndpoints.sendEmail,
+        data: {
+          'user_id': externalId,
+          'subject': subject,
+          'body': body,
+          if (fromEmail != null && fromEmail.isNotEmpty)
+            'from_email': fromEmail,
+          if (replyTo != null && replyTo.isNotEmpty) 'reply_to': replyTo,
+          if (cc.isNotEmpty) 'cc': cc,
+          if (bcc.isNotEmpty) 'bcc': bcc,
+          if (attachments.isNotEmpty) 'attachments': attachments,
+        },
+      );
+      return EnvelopeParser.parseObject(
+        response: response,
+        fromJson: NotificationDto.fromJson,
+      ).map((dto) => dto.toEntity());
+    } on DioException catch (e) {
+      return Left(FailureMapper.fromDio(e));
+    }
+  }
 }

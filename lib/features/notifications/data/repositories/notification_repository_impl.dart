@@ -27,4 +27,25 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, Notification>> getById(String id) =>
       _remote.getById(id);
+
+  @override
+  Future<Either<Failure, Notification>> sendEmail({
+    required String externalId,
+    required String subject,
+    required String body,
+    String? fromEmail,
+    String? replyTo,
+    List<String> cc = const [],
+    List<String> bcc = const [],
+    List<String> attachments = const [],
+  }) => _remote.sendEmail(
+    externalId: externalId,
+    subject: subject,
+    body: body,
+    fromEmail: fromEmail,
+    replyTo: replyTo,
+    cc: cc,
+    bcc: bcc,
+    attachments: attachments,
+  );
 }

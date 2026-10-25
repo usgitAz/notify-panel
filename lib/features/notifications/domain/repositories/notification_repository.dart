@@ -13,4 +13,15 @@ abstract interface class NotificationRepository {
   });
 
   Future<Either<Failure, Notification>> getById(String id);
+
+  Future<Either<Failure, Notification>> sendEmail({
+    required String externalId,
+    required String subject,
+    required String body,
+    String? fromEmail,
+    String? replyTo,
+    List<String> cc = const [],
+    List<String> bcc = const [],
+    List<String> attachments = const [],
+  });
 }
