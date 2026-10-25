@@ -34,4 +34,9 @@ abstract final class AppRoutes {
 
   static String notificationDetailPath(String id) =>
       '$notifications/${Uri.encodeComponent(id)}';
+
+  static String notificationComposePath({String? to}) {
+    final base = '$notifications/$notificationCompose';
+    return to == null ? base : '$base?to=${Uri.encodeComponent(to)}';
+  }
 }

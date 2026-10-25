@@ -7,6 +7,7 @@ import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/providers/auth_state.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/devices/presentation/pages/register_device_page.dart';
+import '../../features/notifications/presentation/pages/notification_composer_page.dart';
 import '../../features/notifications/presentation/pages/notification_detail_page.dart';
 import '../../features/notifications/presentation/pages/notifications_list_page.dart';
 import '../../features/users/presentation/pages/create_user_page.dart';
@@ -77,7 +78,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (_, _) => const NotificationsListPage(),
             routes: [
               GoRoute(
-                path: AppRoutes.notificationDetail,
+                path: AppRoutes.notificationCompose, // 'compose'
+                builder: (context, state) => NotificationComposerPage(
+                  prefillExternalId: state.uri.queryParameters['to'],
+                ),
+              ),
+              GoRoute(
+                path: AppRoutes.notificationDetail, // ':id'
                 builder: (context, state) => NotificationDetailPage(
                   notificationId: state.pathParameters['id']!,
                 ),

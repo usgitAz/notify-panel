@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../shared/widgets/app_button.dart';
 import '../../../../shared/widgets/async_value_widget.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/status_badge.dart';
@@ -22,7 +23,10 @@ class NotificationsListPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Header(onRefresh: notifier.refresh),
+          _Header(
+            onRefresh: notifier.refresh,
+            onCompose: () => context.go(AppRoutes.notificationComposePath()),
+          ),
           const SizedBox(height: 16),
           _Filters(
             status: async.value?.statusFilter,
@@ -174,7 +178,8 @@ class _Filters extends StatelessWidget {
 class _Header extends StatelessWidget {
   final VoidCallback onRefresh;
 
-  const _Header({required this.onRefresh});
+  final VoidCallback onCompose;
+  const _Header({required this.onRefresh, required this.onCompose});
 
   @override
   Widget build(BuildContext context) {
@@ -200,6 +205,12 @@ class _Header extends StatelessWidget {
           tooltip: 'Refresh',
           icon: const Icon(Icons.refresh),
           onPressed: onRefresh,
+        ),
+        const SizedBox(width: 8),
+        AppButton(
+          label: 'Compose',
+          icon: Icons.edit_outlined,
+          onPressed: onCompose,
         ),
       ],
     );

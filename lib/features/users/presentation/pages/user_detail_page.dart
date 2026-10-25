@@ -165,7 +165,9 @@ class _UserDetailBodyState extends ConsumerState<_UserDetailBody> {
                 ),
               ),
               const SizedBox(height: 16),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
                 children: [
                   AppButton(
                     label: user.isActive ? 'Deactivate' : 'Activate',
@@ -177,6 +179,14 @@ class _UserDetailBodyState extends ConsumerState<_UserDetailBody> {
                     variant: user.isActive
                         ? AppButtonVariant.outlined
                         : AppButtonVariant.filled,
+                  ),
+                  AppButton(
+                    label: 'Send notification',
+                    icon: Icons.email_outlined,
+                    variant: AppButtonVariant.outlined,
+                    onPressed: () => context.go(
+                      AppRoutes.notificationComposePath(to: user.externalId),
+                    ),
                   ),
                 ],
               ),
