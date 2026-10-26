@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:notify_panel/core/error/failure.dart';
 
 import '../../../../core/config/env.dart';
 import '../../domain/entities/notification.dart';
 import 'notification_providers.dart';
+import '../../../auth/presentation/providers/auth_scope_provider.dart';
 
 @immutable
 class NotificationDetailState {
@@ -39,6 +41,11 @@ class NotificationDetailNotifier
 
   @override
   Future<NotificationDetailState> build() async {
+    final scope = ref.watch(tenantScopeProvider);
+    if (scope == null) {
+      throw const AuthFailure(message: 'No active session.');
+    }
+
     ref.onDispose(_cancelTimer);
 
     final notification = await _load();

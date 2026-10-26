@@ -5,6 +5,7 @@ import '../../../../core/network/page.dart';
 import '../../domain/entities/notification.dart';
 import '../../domain/usecases/list_notifications_usecase.dart';
 import 'notification_providers.dart';
+import '../../../auth/presentation/providers/auth_scope_provider.dart';
 
 @immutable
 class NotificationsListState {
@@ -48,8 +49,19 @@ class NotificationsListState {
 
 class NotificationsListNotifier extends AsyncNotifier<NotificationsListState> {
   @override
-  Future<NotificationsListState> build() =>
-      _fetch(status: null, channel: null, offset: 0);
+  Future<NotificationsListState> build() async {
+    final scope = ref.watch(tenantScopeProvider);
+    if (scope == null) {
+      return const NotificationsListState(
+        notifications: [],
+        page: null,
+        statusFilter: null,
+        channelFilter: null,
+        limit: 20,
+      );
+    }
+    return _fetch(status: null, channel: null, offset: 0);
+  }
 
   Future<NotificationsListState> _fetch({
     required NotificationStatus? status,

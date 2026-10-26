@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../auth/presentation/providers/auth_scope_provider.dart';
 import '../../data/datasources/user_remote_datasource.dart';
 import '../../data/repositories/user_repository_impl.dart';
 import '../../domain/entities/user.dart';
@@ -55,6 +56,11 @@ class UserDetailNotifier extends AsyncNotifier<User> {
 
   @override
   Future<User> build() async {
+    final scope = ref.watch(tenantScopeProvider);
+    if (scope == null) {
+      throw const AuthFailure(message: 'No active session.');
+    }
+
     final result = await ref.watch(getUserUseCaseProvider).call(externalId);
     return result.match((failure) => throw failure, (user) => user);
   }

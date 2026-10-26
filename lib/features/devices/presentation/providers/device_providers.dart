@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/network/page.dart';
 import '../../../../core/providers/core_providers.dart';
+import '../../../auth/presentation/providers/auth_scope_provider.dart';
 import '../../data/datasources/device_remote_datasource.dart';
 import '../../data/repositories/device_repository_impl.dart';
 import '../../domain/entities/device.dart';
@@ -52,8 +54,18 @@ class DeviceListNotifier extends AsyncNotifier<DeviceListState> {
   DeviceListNotifier(this.externalId);
 
   @override
-  Future<DeviceListState> build() =>
-      _fetch(filter: DeviceActiveFilter.all, offset: 0);
+  Future<DeviceListState> build() async {
+    final scope = ref.watch(tenantScopeProvider);
+    if (scope == null) {
+      return const DeviceListState(
+        devices: [],
+        page: null,
+        filter: DeviceActiveFilter.all,
+        isLoadingMore: false,
+      );
+    }
+    return _fetch(filter: DeviceActiveFilter.all, offset: 0);
+  }
 
   Future<void> refresh() async {
     final current = state.value;
