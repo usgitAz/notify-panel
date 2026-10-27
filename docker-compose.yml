@@ -1,0 +1,21 @@
+# Base compose file. Combine with a dev or prod override:
+#
+#   Dev:   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#   Prod:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+name: notify-panel
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        API_BASE_URL: ${API_BASE_URL:-http://localhost:8000/api/v1}
+    image: notify-panel:${IMAGE_TAG:-latest}
+    container_name: notify-panel
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,44 @@
+# Build artifacts (rebuilt inside image)
+build/
+.dart_tool/
+.packages
+
+# Generated code (regenerated via build_runner)
+lib/**/*.g.dart
+lib/**/*.freezed.dart
+lib/**/*.gr.dart
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Tests (not needed in prod image)
+test/
+integration_test/
+
+# Docker files
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+
+# Docs
+README.md
+docs/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
